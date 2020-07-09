@@ -25,7 +25,10 @@ class PhotoInfoViewController: UIViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        navigationController?.setToolbarHidden(false, animated: true)
+
+        let tagsButton = UIBarButtonItem(title: "Tags", style: .plain, target: self, action: #selector(presentTagsVC(_:)))
+        setToolbarItems([tagsButton], animated: false)
         store.fetchImage(for: photo) { (result) -> Void in
             switch result {
             case let .success(image):
@@ -38,6 +41,16 @@ class PhotoInfoViewController: UIViewController {
 
     }
     
+    @objc private func presentTagsVC(_ sender: UIBarButtonItem) {
+        let tagsVC = TagsViewController()
+        let navCon = UINavigationController(rootViewController: tagsVC)
+        
+        tagsVC.store = store
+        tagsVC.photo = photo
+        
+        navigationController?.present(navCon, animated: true, completion: nil)
+        //navigationController?.pushViewController(tagsVC, animated: true)
+    }
     
     //MARK: - Properties
     var photo: Photo! {

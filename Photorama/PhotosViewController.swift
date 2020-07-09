@@ -21,27 +21,34 @@ class PhotosViewController: UIViewController {
     //
     //    }
     
-    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setToolbarHidden(true, animated: false)
+
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Photorama"
         collectionView.delegate = self
         collectionView.dataSource = photoDataSource
         //(collectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection = .horizontal
+        updateDataSource()
+        
 
-        store.fetchInterestingPhotos { photoResult in
-            switch photoResult {
-            case let .success(photos):
-                print("Successfully found \(photos.count) photos.")
-                self.photoDataSource.photos = photos
-                //                if let firstPhoto = photos.first {
-                //                    self.updateImageView(for: firstPhoto)
-            //                }
-            case let .failure(error):
-                print("Error fetching interesting photos: \(error)")
-                self.photoDataSource.photos.removeAll()
-            }
-            self.collectionView.reloadSections(IndexSet(integer: 0))
+        store.fetchInterestingPhotos { photoResult -> Void in
+//            switch photoResult {
+//            case let .success(photos):
+//                print("Successfully found \(photos.count) photos.")
+//                self.photoDataSource.photos = photos
+//                //                if let firstPhoto = photos.first {
+//                //                    self.updateImageView(for: firstPhoto)
+//            //                }
+//            case let .failure(error):
+//                print("Error fetching interesting photos: \(error)")
+//                self.photoDataSource.photos.removeAll()
+//            }
+//            self.collectionView.reloadSections(IndexSet(integer: 0))
+            self.updateDataSource()
         }
         
         guard let collectionView = collectionView, let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else { return }
@@ -125,6 +132,18 @@ extension PhotosViewController: UICollectionViewDelegate {
             if let cell = self.collectionView.cellForItem(at: photoIndexPath) as? PhotoCollectionViewCell {
                 cell.update(displaying: image)
             }
+        }
+    }
+    
+    private func updateDataSource() {
+        store.fetchAllPhotos { (photosResult) in
+            switch photosResult {
+                case let .success(photos):
+                    self.photoDataSource.photos = photos
+                case .failure:
+                    self.photoDataSource.photos.removeAll()
+            }
+            self.collectionView.reloadSections(IndexSet(integer: 0))
         }
     }
 }
